@@ -246,7 +246,7 @@ function playPhrases(stim, phrasesTimer, total_duration, routine_stopped) {
       var useVolume = (total_duration - phrasenSecs) / total_duration
       ZMax_SetSpeechVolume(Math.floor(useVolume * 100))
       ZMax_SetSpeechRate(-2)
-      var phrase = phrases[phrasenCount]
+      phrase = phrases[phrasenCount]
       ZMax_SpeakAsync(phrase)
       phrasesTimer.addPhrasen()
       if (phrasenCount > phrases.length - 1) {
