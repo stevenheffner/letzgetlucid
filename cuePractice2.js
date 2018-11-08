@@ -214,7 +214,7 @@ function timer() {
       clearInterval(timerInt)
       seconds = 0
       intervalREMCount = 0
-      phrasen = 0
+      REMPhrasen = 0
     },
     addIntervalREMCount: function() {
       intervalREMCount++
