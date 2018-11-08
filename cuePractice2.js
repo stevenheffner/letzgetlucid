@@ -28,7 +28,7 @@ var totalREMCount = 0 //// total REM pings for the night
 // Variables to modify the acive stims
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var mp3Path = "C:\\mp3\\mornigmood.mp3" //path to mp3 on your computer
-var mp3Volume = .5 ////sets volume [0 to 1]
+var mp3Volume = 0.5 ////sets volume [0 to 1]
 var startNewIntervalStim = stim2 /// sets the sim that playes if the total REM's for the night if over 1
 
 ///either a phrase or mp3 shoiuld be selected for stimulation
@@ -201,128 +201,126 @@ function secondTimer(
 // ***********************************************************
 
 function timer() {
-	let seconds = 0
-	let intervalREMCount = 0
-	let REMPhrasen = 0
+  let seconds = 0
+  let intervalREMCount = 0
+  let REMPhrasen = 0
   return {
     startTimer: function() {
       timerInt = setInterval(() => {
         seconds++
       }, 1000)
     },
-    stopTimer: function(){
+    stopTimer: function() {
       clearInterval(timerInt)
       seconds = 0
-			intervalREMCount = 0
-			phrasen = 0
-		},
-		addIntervalREMCount: function(){
-			intervalREMCount++
-		},
-		addPhrasen: function(){
-			REMPhrasen++
-		},
-		getSeconds: function(){
-			return seconds
-		},
-		getIntervalREMCount: function(){
-			return intervalREMCount
-		},
-		getREMPhrasen: function(){
-			return REMPhrasen
-		},
-	  
+      intervalREMCount = 0
+      phrasen = 0
+    },
+    addIntervalREMCount: function() {
+      intervalREMCount++
+    },
+    addPhrasen: function() {
+      REMPhrasen++
+    },
+    getSeconds: function() {
+      return seconds
+    },
+    getIntervalREMCount: function() {
+      return intervalREMCount
+    },
+    getREMPhrasen: function() {
+      return REMPhrasen
+    }
   }
 }
 
 var REMIntervalTimer = timer()
 var phrasesTimer = timer()
 
-function playPhrases(stim, phrasesTimer, total_duration, routine_stopped){
-	let phrasenSecs = phrasesTimer.getSeconds()
-	let phrasenCount = phrasesTimer.getREMPhrasen()
-	if (phrasenSecs < total_duration && routine_stopped == 0) {
-		// ZMax_StopSound()
-		if (phrasenSecs % sec_interval == 0) {
-			var useVolume = (total_duration - phrasenSecs) / total_duration
-			// ZMax_SetSpeechVolume(Math.floor(useVolume * 100))
-			// ZMax_SetSpeechRate(-2)
-			// var phrase = phrases[phrasesTimer.getREMPhrasen()]
-			// ZMax_SpeakAsync(phrase)
-			phrasesTimer.addPhrasen()
-			if (phrasenCount > phrases.length - 1) {
-				phrasesTimer.stopTimer()
-			}
-			stim()
-		}
-	}
+function playPhrases(stim, phrasesTimer, total_duration, routine_stopped) {
+  let phrasenSecs = phrasesTimer.getSeconds()
+  let phrasenCount = phrasesTimer.getREMPhrasen()
+  if (phrasenSecs < total_duration && routine_stopped == 0) {
+    // ZMax_StopSound()
+    if (phrasenSecs % sec_interval == 0) {
+      var useVolume = (total_duration - phrasenSecs) / total_duration
+      // ZMax_SetSpeechVolume(Math.floor(useVolume * 100))
+      // ZMax_SetSpeechRate(-2)
+      // var phrase = phrases[phrasesTimer.getREMPhrasen()]
+      // ZMax_SpeakAsync(phrase)
+      phrasesTimer.addPhrasen()
+      if (phrasenCount > phrases.length - 1) {
+        phrasesTimer.stopTimer()
+      }
+      stim()
+    }
+  }
 }
 
-function playMp3(){
-	ZMax_StopSound()
-	ZMax_PlaySound(mp3Path, 0)
-	ZMax_SetSoundVolume(mp3Volume)
+function playMp3() {
+  ZMax_StopSound()
+  ZMax_PlaySound(mp3Path, 0)
+  ZMax_SetSoundVolume(mp3Volume)
 }
 
 function NewEpochReceived(isREM) {
-	let intervalREMCount = REMIntervalTimer.getIntervalREMCount()
-	let intervalSeconds = REMIntervalTimer.getSeconds()
+  let intervalREMCount = REMIntervalTimer.getIntervalREMCount()
+  let intervalSeconds = REMIntervalTimer.getSeconds()
 
   if (isREM && intervalREMCount === 0) {
     REMIntervalTimer.startTimer()
     if (totalREMCount >= 1) startNewIntervalStim()
-		
-		if (stim1Phrases && stim1Mp3){
-			playPhrases(DoStimulation1, phrasesTimer, total_duration, routine_stopped)
-		} else if (stim1Mp3) {
-			playMp3()
-		} else if (stim1Phrases) {
-			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
-		} else {
-			DoStimulation1()
-		}
+
+    if (stim1Phrases && stim1Mp3) {
+      playPhrases(DoStimulation1, phrasesTimer, total_duration, routine_stopped)
+    } else if (stim1Mp3) {
+      playMp3()
+    } else if (stim1Phrases) {
+      playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
+    } else {
+      DoStimulation1()
+    }
     totalREMCount++
     REMIntervalTimer.addIntervalREMCount()
   } else if (isREM && intervalREMCount === 1 && intervalSeconds < 300000) {
-		if (stim2Phrases && stim2Mp3){
-			playPhrases(DoStimulation2, phrasesTimer, total_duration, routine_stopped)
-		} else if (stim2Mp3) {
-			playMp3()
-		} else if (stim2Phrases) {
-			playPhrases(stim2, phrasesTimer, total_duration, routine_stopped)
-		} else {
-			DoStimulation2()
-		}
+    if (stim2Phrases && stim2Mp3) {
+      playPhrases(DoStimulation2, phrasesTimer, total_duration, routine_stopped)
+    } else if (stim2Mp3) {
+      playMp3()
+    } else if (stim2Phrases) {
+      playPhrases(stim2, phrasesTimer, total_duration, routine_stopped)
+    } else {
+      DoStimulation2()
+    }
     totalREMCount++
     REMIntervalTimer.addIntervalREMCount()
   } else if (isREM && intervalREMCount === 2 && intervalSeconds < 300000) {
-		if (stim3Phrases && stim3Mp3){
-			playPhrases(DoStimulation3, phrasesTimer, total_duration, routine_stopped)
-		} else if (stim3Mp3) {
-			playMp3()
-		} else if (stim3Phrases) {
-			playPhrases(stim3, phrasesTimer, total_duration, routine_stopped)
-		} else {
-			DoStimulation3()
-		}
+    if (stim3Phrases && stim3Mp3) {
+      playPhrases(DoStimulation3, phrasesTimer, total_duration, routine_stopped)
+    } else if (stim3Mp3) {
+      playMp3()
+    } else if (stim3Phrases) {
+      playPhrases(stim3, phrasesTimer, total_duration, routine_stopped)
+    } else {
+      DoStimulation3()
+    }
     totalREMCount++
-		REMIntervalTimer.addIntervalREMCount()
+    REMIntervalTimer.addIntervalREMCount()
   } else if (isREM && intervalREMCount >= 3 && intervalSeconds < 300000) {
-		if (stim4Phrases && stim4Mp3){
-			playPhrases(DoStimulation4, phrasesTimer, total_duration, routine_stopped)
-		} else if (stim4Mp3) {
-			playMp3()
-		} else if (stim4Phrases) {
-			playPhrases(stim4, phrasesTimer, total_duration, routine_stopped)
-		} else {
-			DoStimulation4()
-		}
+    if (stim4Phrases && stim4Mp3) {
+      playPhrases(DoStimulation4, phrasesTimer, total_duration, routine_stopped)
+    } else if (stim4Mp3) {
+      playMp3()
+    } else if (stim4Phrases) {
+      playPhrases(stim4, phrasesTimer, total_duration, routine_stopped)
+    } else {
+      DoStimulation4()
+    }
     totalREMCount++
     REMIntervalTimer.addIntervalREMCount()
   } else {
     REMIntervalTimer.stopTimer()
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
