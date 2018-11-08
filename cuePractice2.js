@@ -22,6 +22,24 @@ var phrases = [
   "Car lights. A light house. A light bulb. Any shiny object may be your sign that you are now dreaming.",
   "When you see this light, you are in full control of your dreams."
 ]
+var phrase /// current phrase to say
+var totalREMCount = 0 //// total REM pings for the night
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Variables to modify the acive stims
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var mp3Path = "C:\\mp3\\mornigmood.mp3" //path to mp3 on your computer
+var mp3Volume = .5 ////sets volume [0 to 1]
+var startNewIntervalStim = stim2 /// sets the sim that playes if the total REM's for the night if over 1
+
+var stim1Phrases = false
+var stim2Phrases = false
+var stim3Phrases = false
+var stim4Phrases = false
+
+var stim1Mp3 = false
+var stim2Mp3 = false
+var stim3Mp3 = false
+var stim4Mp3 = false
 
 if (false) {
   //set to true for using mode realistic parameters. set to false to test by shortening time values.
@@ -67,7 +85,64 @@ function button3(buttondown) {
     routine_stopped = 1
   }
 }
-function DoStimulation() {
+function DoStimulation1() {
+  var vibrate = 0
+  var alternateEyes = 0
+  var color = "white"
+  var intensity = 100 // 0 to 100
+  var onTime = 2 // * 100ms units
+  var offTime = 4 // * 100ms units
+  var reps = 4
+  ZMax_FlashLEDS(
+    color,
+    intensity,
+    onTime,
+    offTime,
+    reps,
+    vibrate,
+    alternateEyes
+  )
+}
+
+function DoStimulation2() {
+  var vibrate = 0
+  var alternateEyes = 0
+  var color = "white"
+  var intensity = 100 // 0 to 100
+  var onTime = 2 // * 100ms units
+  var offTime = 4 // * 100ms units
+  var reps = 4
+  ZMax_FlashLEDS(
+    color,
+    intensity,
+    onTime,
+    offTime,
+    reps,
+    vibrate,
+    alternateEyes
+  )
+}
+
+function DoStimulation3() {
+  var vibrate = 0
+  var alternateEyes = 0
+  var color = "white"
+  var intensity = 100 // 0 to 100
+  var onTime = 2 // * 100ms units
+  var offTime = 4 // * 100ms units
+  var reps = 4
+  ZMax_FlashLEDS(
+    color,
+    intensity,
+    onTime,
+    offTime,
+    reps,
+    vibrate,
+    alternateEyes
+  )
+}
+
+function DoStimulation4() {
   var vibrate = 0
   var alternateEyes = 0
   var color = "white"
@@ -106,13 +181,13 @@ function secondTimer(
       var useVolume = (total_duration - _sec) / total_duration
       ZMax_SetSpeechVolume(Math.floor(useVolume * 100))
       ZMax_SetSpeechRate(-2)
-      var phrase = phrases[phrasen]
+      phrase = phrases[phrasen]
       ZMax_SpeakAsync(phrase)
       phrasen = phrasen + 1
       if (phrasen > phrases.length - 1) {
         phrasen = 0
       }
-      DoStimulation()
+      DoStimulation1()
     }
   }
   _sec = _sec + 1
@@ -124,54 +199,150 @@ function secondTimer(
 // called every 256*30 samples of data received (30 seconds)
 // ***********************************************************
 setInterval(() => NewEpochReceived((isREM = true)), 5000)
+function timer() {
+	let seconds = 0
+	let intervalREMCount = 0
+	let REMPhrasen = 0
+  return {
+    startTimer: function() {
+      timerInt = setInterval(() => {
+        seconds++
+      }, 1000)
+    },
+    stopTimer: function(){
+      clearInterval(timerInt)
+      seconds = 0
+			intervalREMCount = 0
+			phrasen = 0
+		},
+		addIntervalREMCount: function(){
+			intervalREMCount++
+		},
+		addPhrasen: function(){
+			REMPhrasen++
+		},
+		getSeconds: function(){
+			return seconds
+		},
+		getIntervalREMCount: function(){
+			return intervalREMCount
+		},
+		getREMPhrasen: function(){
+			return REMPhrasen
+		},
+	  
+  }
+}
+
+var REMIntervalTimer = timer()
+var phrasesTimer = timer()
 
 function stim1() {
-  console.log("stim 1 hit")
+  console.log("Stim fn 1 hit")
 }
 
 function stim2() {
-  console.log("stim 2 hit")
+  console.log("Stim fn 2 hit")
 }
 
 function stim3() {
-  console.log("stim 3 hit")
+  console.log("Stim fn 3 hit")
 }
-var REMCount = 0 ////number of REM pings hit
-var REMTime = 0 //// amount of time after the first REM ping
-var timerInt //// timer to keep track of the 5 min mark
 
-var timer = {
-		startTimer: function(){
-			timerInt = setInterval(() => {
-				REMTime++
-				console.log(REMTime)
-			},1000)
-		},
-		stopTimer: function(){
-			clearInterval(timerInt)
-			REMTime = 0
-			REMCount = 0
+function stim4() {
+  console.log("Stim fn 4 hit")
+}
+
+function playPhrases(stim, phrasesTimer, total_duration, routine_stopped){
+	let phrasenSecs = phrasesTimer.getSeconds()
+	let phrasenCount = phrasesTimer.getREMPhrasen()
+	if (phrasenSecs < total_duration && routine_stopped == 0) {
+		// ZMax_StopSound()
+		if (phrasenSecs % sec_interval == 0) {
+			var useVolume = (total_duration - phrasenSecs) / total_duration
+			// ZMax_SetSpeechVolume(Math.floor(useVolume * 100))
+			// ZMax_SetSpeechRate(-2)
+			// var phrase = phrases[phrasesTimer.getREMPhrasen()]
+			// ZMax_SpeakAsync(phrase)
+			phrasesTimer.addPhrasen()
+			if (phrasenCount > phrases.length - 1) {
+				phrasesTimer.stopTimer()
+			}
+			stim()
+			console.log("phrases hit")
 		}
+	}
+}
 
-  }
-
+function playMp3(){
+	ZMax_StopSound()
+	ZMax_PlaySound(mp3Path, 0)
+	ZMax_SetSoundVolume(mp3Volume)
+}
 
 function NewEpochReceived(isREM) {
-  if (isREM && REMCount === 0) {
-		timer.startTimer()
-    stim1()
-    REMCount += 1
-  } else if (isREM && REMCount === 1 && REMTime >= 300000) {
-    stim2()
-    REMCount += 1
-  } else if (isREM && REMCount === 2 && REMTime >= 300000) {
-    stim3()
-		REMCount += 1
-	} else {
-		console.log('REM is false')
-	  timer.stopTimer()
-	}
+	let intervalREMCount = REMIntervalTimer.getIntervalREMCount()
+	let intervalSeconds = REMIntervalTimer.getSeconds()
 
+  if (isREM && intervalREMCount === 0) {
+    REMIntervalTimer.startTimer()
+    if (totalREMCount >= 1) startNewIntervalStim()
+		
+		if (stim1Phrases && stim1Mp3){
+			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
+		} else if (stim1Mp3) {
+			playMp3()
+		} else if (stim1Phrases) {
+			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
+		} else {
+			stim1()
+			console.log("stim 1 hit")
+		}
+    totalREMCount++
+    REMIntervalTimer.addIntervalREMCount()
+  } else if (isREM && intervalREMCount === 1 && intervalSeconds < 300000) {
+		if (stim2Phrases && stim2Mp3){
+			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
+		} else if (stim2Mp3) {
+			playMp3()
+		} else if (stim2Phrases) {
+			playPhrases(stim2, phrasesTimer, total_duration, routine_stopped)
+		} else {
+			stim2()
+			console.log("stim 2 hit")
+		}
+    totalREMCount++
+    REMIntervalTimer.addIntervalREMCount()
+  } else if (isREM && intervalREMCount === 2 && intervalSeconds < 300000) {
+		if (stim3Phrases && stim3Mp3){
+			playPhrases(stim3, phrasesTimer, total_duration, routine_stopped)
+		} else if (stim3Mp3) {
+			playMp3()
+		} else if (stim3Phrases) {
+			playPhrases(stim3, phrasesTimer, total_duration, routine_stopped)
+		} else {
+			stim3()
+			console.log("stim 3 hit")
+		}
+    totalREMCount++
+		REMIntervalTimer.addIntervalREMCount()
+  } else if (isREM && intervalREMCount >= 3 && intervalSeconds < 300000) {
+		if (stim4Phrases && stim4Mp3){
+			playPhrases(stim4, phrasesTimer, total_duration, routine_stopped)
+		} else if (stim4Mp3) {
+			playMp3()
+		} else if (stim4Phrases) {
+			playPhrases(stim4, phrasesTimer, total_duration, routine_stopped)
+		} else {
+			stim4()
+			console.log("stim 4 hit")
+		}
+    totalREMCount++
+    REMIntervalTimer.addIntervalREMCount()
+  } else {
+    REMIntervalTimer.stopTimer()
+  }
+  console.log("total:", totalREMCount, "interval", intervalREMCount)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

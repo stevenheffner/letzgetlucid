@@ -1,0 +1,150 @@
+// ***********************************************************
+//	Hypnodyne ZMax script file
+//
+//	- Repeats a set of predefined lucidity inducing phrases
+//  - Volume is gradually reduced
+//  - Button3 to stop
+// ***********************************************************
+ 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global variables
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var _sec = 0;
+var routine_stopped = 0;
+var sec_interval = 5; //say a phrase every N seconds
+var total_duration = 2*60; // (in seconds) 
+var phrasen = 0;
+var phrases=[
+"The next time I'm dreaming, I will remember that I'm dreaming",
+"I am able to vividly imagine myself having a lucid dream tonight",
+"I am a lucid dreamer",
+"I am fully aware of when I am dreaming",
+"I always wake up within my dream",
+"I am in full control of my dreams",
+"My dream memory is perfect",
+"My dream consciousness is strong",
+"I am always lucid when dreaming",
+"I am awake inside my dreams",
+"I remember my dreams in high detail",
+"I always realize that I am dreaming",
+"I will lucid dream tonight",
+"I will wake up within my dream",
+"Recognizing when I am dreaming is becoming effortless",
+"I am starting to remember my dreams every day",
+"I am becoming a lucid dreamer",
+"Controlling my dreams is becoming easy",
+"My dream awareness is growing stronger",
+"I will control my dreams",
+"I am transforming into someone who lucid dreams each and every night",
+"I will recognize when I am dreaming",
+"I love lucid dreaming",
+"My dreams are always lucid",
+"Lucid dreaming comes naturally to me",
+"I can easily notice when I am dreaming",
+"Lucid dreaming is just a normal part of my life",
+"Remembering my dreams is easy",
+"I can control my dreams at will",
+"I can awaken within dreams whenever I want",
+"My mind is focused on lucid dreaming",
+"My mind is alert even when I am asleep"
+];
+
+if (false) //set to true for using mode realistic parameters. set to false to test by shortening time values.
+{
+	sec_interval = 30;
+	total_duration = 15*60;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions directly called by HDRecorder. These must exist and cannot throw errors.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// ***********************************************************
+// button1
+// ----------------------------------------------------------
+// called when ZMax button 1 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ************************************************************
+function button1(buttondown)
+{
+	if (buttondown)
+	{
+		ZMax_Toast("Button 1 pressed", "#0099ff"); 
+		 
+	}
+}
+// ***********************************************************
+// button2
+// ----------------------------------------------------------
+// called when ZMax button 2 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ***********************************************************
+function button2(buttondown)
+{
+	if (buttondown)
+	{
+		ZMax_Toast("Button 2 pressed", "#0099ff"); 
+	 
+	}
+}
+// ***********************************************************
+// button3
+// ----------------------------------------------------------
+// called when ZMax button 3 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ***********************************************************
+function button3(buttondown)
+{
+	if (buttondown)
+	{  
+		//ZMax_Toast("Button 3 pressed", "#0099ff"); 
+		routine_stopped = 1;
+	}
+}
+// ***********************************************************
+// secondTimer
+// ----------------------------------------------------------
+// called every second (rough timing)
+// ***********************************************************
+function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasal_range_l, nasal_range_r)
+{  
+	if ((_sec < total_duration) && (routine_stopped == 0))
+	{
+		if (_sec % sec_interval == 0)
+		{
+			var useVolume = (total_duration-_sec) / total_duration;
+			ZMax_SetSpeechVolume(Math.floor(useVolume*100));
+			var phrase = phrases[phrasen];
+			ZMax_SpeakAsync(phrase); 
+			phrasen = phrasen + 1;
+			if (phrasen > phrases.length - 1)
+			{
+				phrasen = 0;
+			}
+		}
+	}
+	_sec = _sec+1; 
+}
+
+// ***********************************************************
+// NewEpochReceived
+// ----------------------------------------------------------
+// called every 256*30 samples of data received (30 seconds)
+// ***********************************************************
+function NewEpochReceived(nEpoch, dxyz, isREM)
+{    
+	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions not directly called by HDRecorder
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function getFormattedDate() { //creates a date string that can be used as file name
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds();
+    return str;
+}

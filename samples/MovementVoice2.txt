@@ -1,0 +1,125 @@
+// ***********************************************************
+//	Hypnodyne ZMax script file
+//
+//	- Every time the user moves, this script plays an audio cue.
+//  - A marker file is saved showing the epoch in which the playing occurred.
+//  - Explanation: https://www.youtube.com/watch?v=K25ufggNgmA
+// ***********************************************************
+ 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global variables
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var recording_audio = false; 
+
+var _sec = 0;
+var _lastRemSec = -100000; 	
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions directly called by HDRecorder. These must exist and cannot throw errors.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// ***********************************************************
+// button1
+// ----------------------------------------------------------
+// called when ZMax button 1 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ************************************************************
+function button1(buttondown)
+{
+	if (buttondown)
+	{
+		ZMax_Toast("Button 1 pressed", "#0099ff"); 
+		 
+	}
+}
+// ***********************************************************
+// button2
+// ----------------------------------------------------------
+// called when ZMax button 2 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ***********************************************************
+function button2(buttondown)
+{
+	if (buttondown)
+	{
+		ZMax_Toast("Button 2 pressed", "#0099ff"); 
+	 
+	}
+}
+// ***********************************************************
+// button3
+// ----------------------------------------------------------
+// called when ZMax button 3 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ***********************************************************
+function button3(buttondown)
+{
+	if (buttondown)
+	{  
+		ZMax_Toast("Button 3 pressed", "#0099ff"); 
+		
+	}
+}
+// ***********************************************************
+// secondTimer
+// ----------------------------------------------------------
+// called every second (rough timing)
+// ***********************************************************
+function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasal_range_l, nasal_range_r)
+{ 
+	if (_sec == 0)
+	{	
+		ZMax_CreateTextFile("mymarkers.mrk");
+		ZMax_AppendTextToFile("mymarkers.mrk", "ZMAX MARKER FILE");
+		ZMax_AppendTextToFile("mymarkers.mrk", "[Color = #00A000]");
+		ZMax_AppendTextToFile("mymarkers.mrk", "[Name = Custom markers]");	
+	}
+  if (_sec > 30*60) //delay stimulation 
+	{
+		if ((dx+dy+dz) > 1)
+		{ 
+			if (_sec-_lastRemSec<60*5)
+			{
+				ZMax_AppendTextToFile("mymarkers.mrk", _sec + "s, #FFFF00 , " + _sec + "s AUDIO TRIGGER"); //absence of color signifies pick color from header
+				ZMax_SpeakAsync("Attention, you may be dreaming."); 
+			}
+			else
+			{
+				ZMax_AppendTextToFile("mymarkers.mrk", _sec + "s, #009900, " + _sec + "s Movement"); //absence of color signifies pick color from header
+			}
+		}
+	}
+	_sec=_sec+1; 
+}
+
+// ***********************************************************
+// NewEpochReceived
+// ----------------------------------------------------------
+// called every 256*30 samples of data received (30 seconds)
+// ***********************************************************
+function NewEpochReceived(nEpoch, dxyz, isREM)
+{    
+	
+	if (isREM == true) 
+	{
+		//ZMax_Toast("REM Epoch " + nEpoch, "#009900"); 
+		//Trigger > minimum interval parameter in HDRecorder LD menu is ignored for the purposes of this function.
+		//If you want a minimum interval you must code it by yourself in JS.
+		//ZMax_Toast("Epoch " + nEpoch + " is REM!", "#009900"); 
+		ZMax_AppendTextToFile("mymarkers.mrk", nEpoch + ", #FF00FF, " + "REM epoch"); //absence of color signifies pick color from header
+		_lastRemSec = (nEpoch-1)*30;
+	}   
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions not directly called by HDRecorder
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function getFormattedDate() { //creates a date string that can be used as file name
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds();
+    return str;
+}

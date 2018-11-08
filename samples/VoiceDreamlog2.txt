@@ -1,0 +1,118 @@
+// ***********************************************************
+//	Hypnodyne ZMax script file
+//
+//	- Voice dream log functionality is associated with button 1  
+// ***********************************************************
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global variables
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var recording_audio = false; 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions directly called by HDRecorder. These must exist and cannot throw errors.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// ***********************************************************
+// button1
+// ----------------------------------------------------------
+// called when ZMax button 1 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ************************************************************
+function button1(buttondown)
+{
+	if (buttondown)
+	{ 
+	 
+		if (recording_audio == false)
+		{
+			var filename = "Dream Log " +getFormattedDate() + ".mp3"; 
+			ZMax_Speak("Voice recording started."); //speak synchronously to delay recording until the computer stops speaking 
+			if (ZMax_MP3StartRecording(filename) > 0)
+			{
+				recording_audio = true;
+				ZMax_Toast("Voice recording started.", "#0099ff"); 
+			}
+			else
+			{
+				ZMax_SpeakAsync("Voice recording failed.");
+			}
+		} 
+		else 
+		{
+			if (ZMax_MP3StopRecording()>0)
+			{
+				recording_audio = false;
+				ZMax_Toast("Voice recording completed", "#0099ff");
+				ZMax_SpeakAsync("Voice recording completed.");
+			} else
+			{
+				ZMax_Toast("Error during stop recording!", "#ff0000");
+			}
+		} 
+	}
+}
+// ***********************************************************
+// button2
+// ----------------------------------------------------------
+// called when ZMax button 2 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ***********************************************************
+function button2(buttondown)
+{
+	if (buttondown)
+	{
+		ZMax_Toast("Button 2 pressed", "#0099ff"); 
+		 
+	}
+}
+// ***********************************************************
+// button3
+// ----------------------------------------------------------
+// called when ZMax button 3 state changes
+// buttondown is true if the button is pressed, false otherwise
+// ***********************************************************
+function button3(buttondown)
+{
+	if (buttondown)
+	{  
+		ZMax_Toast("Button 3 pressed", "#0099ff"); 
+		
+	}
+}
+// ***********************************************************
+// secondTimer
+// ----------------------------------------------------------
+// called every second (rough timing)
+// ***********************************************************
+function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasal_range_l, nasal_range_r)
+{ 
+	
+}
+
+// ***********************************************************
+// NewEpochReceived
+// ----------------------------------------------------------
+// called every 256*30 samples of data received (30 seconds)
+// ***********************************************************
+function NewEpochReceived(nEpoch, dxyz, isREM)
+{   
+	//ZMax_Toast("Epoch " + nEpoch + ", temp " + bodytemp + ", light " +lightlevel+", V" + batteryvoltage + ", BPM " + BPM, "#009900"); 
+	if (isREM == true) 
+	{
+		//Trigger > minimum interval parameter in HDRecorder LD menu is ignored for the purposes of this function.
+		//If you want a minimum interval you must code it by yourself in JS.
+		//ZMax_Toast("Epoch " + nEpoch + " is REM!", "#009900"); 
+	}   
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions not directly called by HDRecorder
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function getFormattedDate() { //creates a date string that can be used as file name
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds();
+    return str;
+}
