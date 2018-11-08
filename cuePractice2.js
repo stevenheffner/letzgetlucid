@@ -31,6 +31,7 @@ var mp3Path = "C:\\mp3\\mornigmood.mp3" //path to mp3 on your computer
 var mp3Volume = .5 ////sets volume [0 to 1]
 var startNewIntervalStim = stim2 /// sets the sim that playes if the total REM's for the night if over 1
 
+///either a phrase or mp3 shoiuld be selected for stimulation
 var stim1Phrases = false
 var stim2Phrases = false
 var stim3Phrases = false
@@ -198,7 +199,7 @@ function secondTimer(
 // ----------------------------------------------------------
 // called every 256*30 samples of data received (30 seconds)
 // ***********************************************************
-setInterval(() => NewEpochReceived((isREM = true)), 5000)
+
 function timer() {
 	let seconds = 0
 	let intervalREMCount = 0
@@ -237,22 +238,6 @@ function timer() {
 var REMIntervalTimer = timer()
 var phrasesTimer = timer()
 
-function stim1() {
-  console.log("Stim fn 1 hit")
-}
-
-function stim2() {
-  console.log("Stim fn 2 hit")
-}
-
-function stim3() {
-  console.log("Stim fn 3 hit")
-}
-
-function stim4() {
-  console.log("Stim fn 4 hit")
-}
-
 function playPhrases(stim, phrasesTimer, total_duration, routine_stopped){
 	let phrasenSecs = phrasesTimer.getSeconds()
 	let phrasenCount = phrasesTimer.getREMPhrasen()
@@ -269,7 +254,6 @@ function playPhrases(stim, phrasesTimer, total_duration, routine_stopped){
 				phrasesTimer.stopTimer()
 			}
 			stim()
-			console.log("phrases hit")
 		}
 	}
 }
@@ -289,60 +273,56 @@ function NewEpochReceived(isREM) {
     if (totalREMCount >= 1) startNewIntervalStim()
 		
 		if (stim1Phrases && stim1Mp3){
-			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
+			playPhrases(DoStimulation1, phrasesTimer, total_duration, routine_stopped)
 		} else if (stim1Mp3) {
 			playMp3()
 		} else if (stim1Phrases) {
 			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
 		} else {
-			stim1()
-			console.log("stim 1 hit")
+			DoStimulation1()
 		}
     totalREMCount++
     REMIntervalTimer.addIntervalREMCount()
   } else if (isREM && intervalREMCount === 1 && intervalSeconds < 300000) {
 		if (stim2Phrases && stim2Mp3){
-			playPhrases(stim1, phrasesTimer, total_duration, routine_stopped)
+			playPhrases(DoStimulation2, phrasesTimer, total_duration, routine_stopped)
 		} else if (stim2Mp3) {
 			playMp3()
 		} else if (stim2Phrases) {
 			playPhrases(stim2, phrasesTimer, total_duration, routine_stopped)
 		} else {
-			stim2()
-			console.log("stim 2 hit")
+			DoStimulation2()
 		}
     totalREMCount++
     REMIntervalTimer.addIntervalREMCount()
   } else if (isREM && intervalREMCount === 2 && intervalSeconds < 300000) {
 		if (stim3Phrases && stim3Mp3){
-			playPhrases(stim3, phrasesTimer, total_duration, routine_stopped)
+			playPhrases(DoStimulation3, phrasesTimer, total_duration, routine_stopped)
 		} else if (stim3Mp3) {
 			playMp3()
 		} else if (stim3Phrases) {
 			playPhrases(stim3, phrasesTimer, total_duration, routine_stopped)
 		} else {
-			stim3()
-			console.log("stim 3 hit")
+			DoStimulation3()
 		}
     totalREMCount++
 		REMIntervalTimer.addIntervalREMCount()
   } else if (isREM && intervalREMCount >= 3 && intervalSeconds < 300000) {
 		if (stim4Phrases && stim4Mp3){
-			playPhrases(stim4, phrasesTimer, total_duration, routine_stopped)
+			playPhrases(DoStimulation4, phrasesTimer, total_duration, routine_stopped)
 		} else if (stim4Mp3) {
 			playMp3()
 		} else if (stim4Phrases) {
 			playPhrases(stim4, phrasesTimer, total_duration, routine_stopped)
 		} else {
-			stim4()
-			console.log("stim 4 hit")
+			DoStimulation4()
 		}
     totalREMCount++
     REMIntervalTimer.addIntervalREMCount()
   } else {
     REMIntervalTimer.stopTimer()
   }
-  console.log("total:", totalREMCount, "interval", intervalREMCount)
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
