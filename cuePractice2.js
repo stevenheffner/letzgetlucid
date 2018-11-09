@@ -13,9 +13,9 @@
 var _sec = 0;
 var routine_stopped = 0;
 var sec_interval = 10; //say a phrase every N seconds.
-var total_duration = 2*60; // (in seconds) 
+var total_duration = 200; // (in seconds) 
 var phrasen = 0;
-var phrases=[
+var phrases1=[
 "This light is my dream guide. It helps me remember that I am inside a dream.",
 "When I see this dream cue, I will immediately be aware that I am inside a dream.",
 "I see the dream cue. Am I dreaming?",
@@ -23,12 +23,22 @@ var phrases=[
 "Car lights. A light house. A light bulb. Any shiny object may be your sign that you are now dreaming.",
 "When you see this light, you are in full control of your dreams."
 ];
-
-var remsArray=[];
-var fiveMinutes= 30000     //milliseconds
-var oneHour = 1000 * 3600  //milliseconds
-var halfHour = 1000 * 1800 //milliseconds
-
+var phrases2=[
+"The next time I'm dreaming, I will remember that I'm dreaming",
+"I am able to vividly imagine myself having a lucid dream tonight",
+"I am a lucid dreamer",
+"I am fully aware of when I am dreaming",
+"I always wake up within my dream",
+"I am in full control of my dreams",
+"My dream memory is perfect",
+"My dream consciousness is strong",
+"I am always lucid when dreaming",
+"I am awake inside my dreams",
+"I remember my dreams in high detail",
+"I always realize that I am dreaming",
+"I will lucid dream tonight",
+];
+	
 if (false) //set to true for using mode realistic parameters. set to false to test by shortening time values.
 {
 	sec_interval = 30;
@@ -140,10 +150,10 @@ function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasa
 			var useVolume = (total_duration-_sec) / total_duration;
 			ZMax_SetSpeechVolume(Math.floor(useVolume*100));
 			ZMax_SetSpeechRate(-2);
-			var phrase = phrases[phrasen];
+			var phrase = phrases1[phrasen];
 			ZMax_SpeakAsync(phrase); 
 			phrasen = phrasen + 1;
-			if (phrasen > phrases.length - 1)
+			if (phrasen > phrases1.length - 1)
 			{
 				phrasen = 0;
 			}
@@ -156,7 +166,8 @@ function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasa
 var mp3Path = "C:\\mp3\\mornigmood.mp3"; ////path to mp3 file on your computer
 var mp3Volume = 0.5;                     ////sets volume [0 to 1]
 
-function playMp3(stimulation){
+function playMp3(stimulation)
+{
 	ZMax_StopSound()
   ZMax_PlaySound(mp3Path, 0)
 	ZMax_SetSoundVolume(mp3Volume)
@@ -168,39 +179,55 @@ function playMp3(stimulation){
 
 var phrasesSeconds = 0
 
-function playPhrases(stimulation){
-
-	clearInterval()
-	phrasesSeconds = 0
-
-	setInterval(function(){
-		phrasesSeconds++
-	}, 1000)
-
-	if (phrasesSeconds % sec_interval == 0)
+function playPhrases(stimulation, phrases)
+{
+	if(!phrases)
 	{
-	  useVolume = (total_duration-phrasesSeconds) / total_duration;
-	  ZMax_SetSpeechVolume(Math.floor(useVolume*100));
-	  ZMax_SetSpeechRate(-2);
-	  phrase = phrases[phrasen];
-	  ZMax_SpeakAsync(phrase); 
-	  phrasen = phrasen + 1;
-	  if (phrasen > phrases.length - 1)
-    {
-	  	phrasen = 0;
-	  }
-	  if(stimulation)
-	  {
-	   stimulation();
-	  }
-  }
+		phrases = phrases1
+	}
+	var phrasesInterval = setInterval(function()
+	{
+	  if ((phrasesSeconds <= total_duration) && (routine_stopped == 0))
+		{
+			if (phrasesSeconds % sec_interval == 0)
+	 	  {
+				useVolume = (total_duration-phrasesSeconds) / total_duration;
+				ZMax_SetSpeechVolume(Math.floor(useVolume*100));
+				// ZMax_SetSpeechRate(-2);
+				phrase = phrases[phrasen];
+				ZMax_SpeakAsync(phrase); 
+			 	phrasen = phrasen + 1;
+			 	if (phrasen > phrases.length - 1)
+			 	{
+					phrasen = 0;
+				}
+				if(stimulation)
+				{
+				  stimulation();
+				}
+	  	}
+			phrasesSeconds++
+		}
+		else
+		{
+			clearInterval(phrasesInterval)
+			phrasesSeconds = 0
+		}
+	}, 1000)
 }
+	
+
 
 // ***********************************************************
 // NewEpochReceived
 // ----------------------------------------------------------
 // called every 256*30 samples of data received (30 seconds)
 // ***********************************************************
+
+var remsArray=[];
+var fiveMinutes= 60000 * 5; //milliseconds in 5 minutes
+var halfHour = 60000 * 30; //milliseconds in 30 minutes
+var oneHour = 60000 * 60; //milliseconds in 60 minutes
 
 function NewEpochReceived(isREM)
 {    
@@ -209,40 +236,40 @@ function NewEpochReceived(isREM)
 		remsArray.push(new Date().getTime());
 		var totalRems = remsArray.length;
 		var timeSinceLastRem = !remsArray[0] ? remsArray[totalRems - 1] - remsArray[totalRems - 2] : 0		
-		if (totalRems == 1 && timeSinceLastRem < fiveMinutes)
+		if (totalRems == 1)
 		{
-			DoStimulation1()
+			// DoStimulation1()
 			// playMp3(DoStimulation1)
-			// playPhrases(DoStimulation1)
+			// playPhrases(DoStimulation1,phrases1)
 		}
 		else if (totalRems == 2 && timeSinceLastRem < fiveMinutes)
 		{
-			DoStimulation2()
+			// DoStimulation2()
 			// playMp3(DoStimulation2)
-			// playPhrases(DoStimulation2)
+			// playPhrases(DoStimulation2,phrases1)
 		}
 		else if (totalRems == 3 && timeSinceLastRem < fiveMinutes)
 		{
-			DoStimulation3()
+			// DoStimulation3()
 			// playMp3(DoStimulation3)
-			// playPhrases(DoStimulation3)
+			// playPhrases(DoStimulation3,phrases1)
 		}
 		else if (totalRems == 4 && timeSinceLastRem < fiveMinutes)
 		{
-			DoStimulation4()
+			// DoStimulation4()
 			// playMp3(DoStimulation4)
-			// playPhrases(DoStimulation4)
+			// playPhrases(DoStimulation4, phrases1)
 		}
 		else if (totalRems > 0 && timeSinceLastRem > oneHour)
 		{
-			DoStimulation2()
+			// DoStimulation2()
 			// playMp3(DoStimulation4)
-			// playPhrases(DoStimulation4)
+			// playPhrases(DoStimulation4, phrases1)
 		}
 		else 
 		{
 			// Default DoStimulation
-			DoStimulation1()
+			// DoStimulation1()
 		}
 	}
 }
