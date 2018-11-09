@@ -169,7 +169,7 @@ var mp3Volume = 0.5;                     ////sets volume [0 to 1]
 function playMp3(stimulation)
 {
 	ZMax_StopSound()
-  ZMax_PlaySound(mp3Path, 0)
+	ZMax_PlaySound(mp3Path, 0)
 	ZMax_SetSoundVolume(mp3Volume)
 	if (stimulation)
 	{
