@@ -6,7 +6,6 @@
 //  - Button3 to stop
 // ***********************************************************
  
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Global variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,12 +37,18 @@ var phrases2=[
 "I always realize that I am dreaming",
 "I will lucid dream tonight",
 ];
-	
+var phrases3=[
+"I am in full control of my dreams",
+"I remember my dreams in high detail",
+];
+
 if (false) //set to true for using mode realistic parameters. set to false to test by shortening time values.
 {
 	sec_interval = 30;
 	total_duration = 15*60;
 }
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions directly called by HDRecorder. These must exist and cannot throw errors.
@@ -105,24 +110,24 @@ function DoStimulation1()
 }
 function DoStimulation2()
 {
-	var vibrate = 0;
+	var vibrate = 1;
 	var alternateEyes = 0;
 	var color = "white";
 	var intensity = 100; // 0 to 100
-	var onTime = 2; // * 100ms units
+	var onTime = 5; // * 100ms units
 	var offTime = 4; // * 100ms units
-	var reps = 4;
+	var reps = 1;
 	ZMax_FlashLEDS(color, intensity, onTime, offTime, reps, vibrate, alternateEyes); 
 }
 function DoStimulation3()
 {
-	var vibrate = 0;
+	var vibrate = 1;
 	var alternateEyes = 0;
-	var color = "white";
+	var color = "red";
 	var intensity = 100; // 0 to 100
-	var onTime = 2; // * 100ms units
-	var offTime = 4; // * 100ms units
-	var reps = 4;
+	var onTime = 3; // * 100ms units
+	var offTime = 1; // * 100ms units
+	var reps = 2;
 	ZMax_FlashLEDS(color, intensity, onTime, offTime, reps, vibrate, alternateEyes); 
 }
 function DoStimulation4()
@@ -163,7 +168,7 @@ function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasa
 	_sec = _sec+1; 
 }
 
-var mp3Path = "C:\\mp3\\mornigmood.mp3"; ////path to mp3 file on your computer
+var mp3Path = "C:\mp3\remmp3.mp3"; ////path to mp3 file on your computer
 var mp3Volume = 0.5;                     ////sets volume [0 to 1]
 
 function playMp3(stimulation)
@@ -179,8 +184,13 @@ function playMp3(stimulation)
 
 var phrasesSeconds = 0
 
-function playPhrases(stimulation, phrases)
+function playPhrases(stimulation,phrases)
 {
+	// (phrases3 || phrases4 || phrases5)
+	if (phrases = phrases3)
+  {
+	total_duration = 30
+  }
 	if(!phrases)
 	{
 		phrases = phrases1
@@ -240,36 +250,36 @@ function NewEpochReceived(isREM)
 		{
 			// DoStimulation1()
 			// playMp3(DoStimulation1)
-			// playPhrases(DoStimulation1,phrases1)
+			playPhrases(DoStimulation2,phrases3)
 		}
 		else if (totalRems == 2 && timeSinceLastRem < fiveMinutes)
 		{
-			// DoStimulation2()
+			DoStimulation3()
 			// playMp3(DoStimulation2)
 			// playPhrases(DoStimulation2,phrases1)
 		}
 		else if (totalRems == 3 && timeSinceLastRem < fiveMinutes)
 		{
-			// DoStimulation3()
+			DoStimulation3()
 			// playMp3(DoStimulation3)
 			// playPhrases(DoStimulation3,phrases1)
 		}
 		else if (totalRems == 4 && timeSinceLastRem < fiveMinutes)
 		{
-			// DoStimulation4()
+			DoStimulation3()
 			// playMp3(DoStimulation4)
 			// playPhrases(DoStimulation4, phrases1)
 		}
 		else if (totalRems > 0 && timeSinceLastRem > oneHour)
 		{
 			// DoStimulation2()
-			// playMp3(DoStimulation4)
+			playMp3(DoStimulation3)
 			// playPhrases(DoStimulation4, phrases1)
 		}
 		else 
 		{
 			// Default DoStimulation
-			DoStimulation1()
+			DoStimulation2()
 		}
 	}
 }
