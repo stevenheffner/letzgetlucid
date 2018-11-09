@@ -269,7 +269,7 @@ function NewEpochReceived(isREM)
 		else 
 		{
 			// Default DoStimulation
-			// DoStimulation1()
+			DoStimulation1()
 		}
 	}
 }
