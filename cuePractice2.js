@@ -51,7 +51,7 @@ function button1(buttondown)
 	if (buttondown)
 	{
 		ZMax_Toast("Button 1 pressed", "#0099ff"); 
-		 
+
 	}
 }
 // ***********************************************************
@@ -65,7 +65,7 @@ function button2(buttondown)
 	if (buttondown)
 	{
 		ZMax_Toast("Button 2 pressed", "#0099ff");
-		 
+
 	}
 }
 // ***********************************************************
