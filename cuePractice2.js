@@ -6,7 +6,6 @@
 //  - Button3 to stop
 // ***********************************************************
  
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Global variables
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,7 +14,7 @@ var routine_stopped = 0;
 var sec_interval = 10; //say a phrase every N seconds.
 var total_duration = 2*60; // (in seconds) 
 var phrasen = 0;
-var phrases=[
+var phrases1=[
 "This light is my dream guide. It helps me remember that I am inside a dream.",
 "When I see this dream cue, I will immediately be aware that I am inside a dream.",
 "I see the dream cue. Am I dreaming?",
@@ -23,12 +22,33 @@ var phrases=[
 "Car lights. A light house. A light bulb. Any shiny object may be your sign that you are now dreaming.",
 "When you see this light, you are in full control of your dreams."
 ];
+var phrases2=[
+"The next time I'm dreaming, I will remember that I'm dreaming",
+"I am able to vividly imagine myself having a lucid dream tonight",
+"I am a lucid dreamer",
+"I am fully aware of when I am dreaming",
+"I always wake up within my dream",
+"I am in full control of my dreams",
+"My dream memory is perfect",
+"My dream consciousness is strong",
+"I am always lucid when dreaming",
+"I am awake inside my dreams",
+"I remember my dreams in high detail",
+"I always realize that I am dreaming",
+"I will lucid dream tonight",
+];
+var phrases3=[
+"I am in full control of my dreams",
+"I remember my dreams in high detail",
+];
 
 if (false) //set to true for using mode realistic parameters. set to false to test by shortening time values.
 {
 	sec_interval = 30;
 	total_duration = 15*60;
 }
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions directly called by HDRecorder. These must exist and cannot throw errors.
@@ -46,7 +66,7 @@ function button1(buttondown)
 	if (buttondown)
 	{
 		ZMax_Toast("Button 1 pressed", "#0099ff"); 
-		 
+
 	}
 }
 // ***********************************************************
@@ -59,8 +79,8 @@ function button2(buttondown)
 {
 	if (buttondown)
 	{
-		ZMax_Toast("Button 2 pressed", "#0099ff"); 
-	 
+		ZMax_Toast("Button 2 pressed", "#0099ff");
+
 	}
 }
 // ***********************************************************
@@ -77,7 +97,40 @@ function button3(buttondown)
 		routine_stopped = 1;
 	}
 }
-function DoStimulation()
+function DoStimulation1()
+{
+	var vibrate = 0;
+	var alternateEyes = 0;
+	var color = "white";
+	var intensity = 100; // 0 to 100
+	var onTime = 2; // * 100ms units
+	var offTime = 4; // * 100ms units
+	var reps = 4;
+	ZMax_FlashLEDS(color, intensity, onTime, offTime, reps, vibrate, alternateEyes); 
+}
+function DoStimulation2()
+{
+	var vibrate = 1;
+	var alternateEyes = 0;
+	var color = "white";
+	var intensity = 100; // 0 to 100
+	var onTime = 5; // * 100ms units
+	var offTime = 4; // * 100ms units
+	var reps = 1;
+	ZMax_FlashLEDS(color, intensity, onTime, offTime, reps, vibrate, alternateEyes); 
+}
+function DoStimulation3()
+{
+	var vibrate = 1;
+	var alternateEyes = 0;
+	var color = "red";
+	var intensity = 100; // 0 to 100
+	var onTime = 3; // * 100ms units
+	var offTime = 1; // * 100ms units
+	var reps = 2;
+	ZMax_FlashLEDS(color, intensity, onTime, offTime, reps, vibrate, alternateEyes); 
+}
+function DoStimulation4()
 {
 	var vibrate = 0;
 	var alternateEyes = 0;
@@ -102,29 +155,132 @@ function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasa
 			var useVolume = (total_duration-_sec) / total_duration;
 			ZMax_SetSpeechVolume(Math.floor(useVolume*100));
 			ZMax_SetSpeechRate(-2);
-			var phrase = phrases[phrasen];
+			var phrase = phrases1[phrasen];
 			ZMax_SpeakAsync(phrase); 
 			phrasen = phrasen + 1;
-			if (phrasen > phrases.length - 1)
+			if (phrasen > phrases1.length - 1)
 			{
 				phrasen = 0;
 			}
-			DoStimulation();
+			DoStimulation1();
 		}
 	}
 	_sec = _sec+1; 
 }
+
+var mp3Path = "C:\mp3\remmp3.mp3"; ////path to mp3 file on your computer
+var mp3Volume = 0.5;                     ////sets volume [0 to 1]
+
+function playMp3(stimulation)
+{
+	ZMax_StopSound()
+	ZMax_PlaySound(mp3Path, 0)
+	ZMax_SetSoundVolume(mp3Volume)
+	if (stimulation)
+	{
+		stimulation()
+	}
+}
+
+var phrasesSeconds = 0
+
+function playPhrases(stimulation,phrases)
+{
+	// (phrases3 || phrases4 || phrases5)
+	if (phrases = phrases3)
+  {
+	total_duration = 30
+  }
+	if(!phrases)
+	{
+		phrases = phrases1
+	}
+	var phrasesInterval = setInterval(function()
+	{
+	  if ((phrasesSeconds <= total_duration) && (routine_stopped == 0))
+		{
+			if (phrasesSeconds % sec_interval == 0)
+	 	  {
+				useVolume = (total_duration-phrasesSeconds) / total_duration;
+				ZMax_SetSpeechVolume(Math.floor(useVolume*100));
+				// ZMax_SetSpeechRate(-2);
+				phrase = phrases[phrasen];
+				ZMax_SpeakAsync(phrase); 
+			 	phrasen = phrasen + 1;
+			 	if (phrasen > phrases.length - 1)
+			 	{
+					phrasen = 0;
+				}
+				if(stimulation)
+				{
+				  stimulation();
+				}
+	  	}
+			phrasesSeconds++
+		}
+		else
+		{
+			clearInterval(phrasesInterval)
+			phrasesSeconds = 0
+		}
+	}, 1000)
+}
+	
+
 
 // ***********************************************************
 // NewEpochReceived
 // ----------------------------------------------------------
 // called every 256*30 samples of data received (30 seconds)
 // ***********************************************************
-function NewEpochReceived(nEpoch, dxyz, isREM)
+
+var remsArray=[];
+var fiveMinutes= 60000 * 5; //milliseconds in 5 minutes
+var halfHour = 60000 * 30; //milliseconds in 30 minutes
+var oneHour = 60000 * 60; //milliseconds in 60 minutes
+
+function NewEpochReceived(isREM)
 {    
-	if (isREM==true)
+	if (isREM)
 	{
-			DoStimulation();
+		remsArray.push(new Date().getTime());
+		var totalRems = remsArray.length;
+		var timeSinceLastRem = !remsArray[0] ? remsArray[totalRems - 1] - remsArray[totalRems - 2] : 0		
+		if (totalRems == 1)
+		{
+			// DoStimulation1()
+			// playMp3(DoStimulation1)
+			playPhrases(DoStimulation2,phrases3)
+		}
+		else if (totalRems == 2 && timeSinceLastRem < fiveMinutes)
+		{
+			DoStimulation3()
+			// playMp3(DoStimulation2)
+			// playPhrases(DoStimulation2,phrases1)
+		}
+		else if (totalRems == 3 && timeSinceLastRem < fiveMinutes)
+		{
+			DoStimulation3()
+			// playMp3(DoStimulation3)
+			// playPhrases(DoStimulation3,phrases1)
+		}
+		else if (totalRems == 4 && timeSinceLastRem < fiveMinutes)
+		{
+			DoStimulation3()
+			// playMp3(DoStimulation4)
+			// playPhrases(DoStimulation4, phrases1)
+		}
+		else if (totalRems > 0 && timeSinceLastRem > oneHour)
+		{
+			// DoStimulation2()
+			playMp3(DoStimulation3)
+			// playPhrases(DoStimulation4, phrases1)
+		}
+		else 
+		{
+			// Default DoStimulation
+			DoStimulation2()
+		}
 	}
 }
 
