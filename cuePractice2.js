@@ -29,7 +29,6 @@ var fiveMinutes= 30000     //milliseconds
 var oneHour = 1000 * 3600  //milliseconds
 var halfHour = 1000 * 1800 //milliseconds
 
-
 if (false) //set to true for using mode realistic parameters. set to false to test by shortening time values.
 {
 	sec_interval = 30;
