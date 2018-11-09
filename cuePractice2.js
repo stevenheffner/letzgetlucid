@@ -13,7 +13,7 @@
 var _sec = 0;
 var routine_stopped = 0;
 var sec_interval = 10; //say a phrase every N seconds.
-var total_duration = 200; // (in seconds) 
+var total_duration = 2*60; // (in seconds) 
 var phrasen = 0;
 var phrases1=[
 "This light is my dream guide. It helps me remember that I am inside a dream.",
