@@ -12,9 +12,7 @@
 var _sec = 0;
 var routine_stopped = 0;
 var sec_interval = 10; //say a phrase every N seconds.
-var total_duration = 31; // (in seconds) 
-var phrases
-var stimulation
+var total_duration = 2*60; // (in seconds) 
 var phrasen = 0;
 var phrases1=[
 "This light is my dream guide. It helps me remember that I am inside a dream.",
@@ -49,7 +47,6 @@ if (false) //set to true for using mode realistic parameters. set to false to te
 	sec_interval = 30;
 	total_duration = 15*60;
 }
-
 
 
 
@@ -144,65 +141,92 @@ function DoStimulation4()
 	var reps = 4;
 	ZMax_FlashLEDS(color, intensity, onTime, offTime, reps, vibrate, alternateEyes); 
 }
-
 // ***********************************************************
 // secondTimer
 // ----------------------------------------------------------
 // called every second (rough timing)
 // ***********************************************************
-
-function secondTimer()
-{ 
-	if (!phrases)
+function secondTimer(bodytemp, lightlevel, batteryvoltage, BPM, dx, dy, dz, nasal_range_l, nasal_range_r)
+{  
+	if ((_sec < total_duration) && (routine_stopped == 0))
 	{
-		phrases = phrases1
-	}
-	if (!stimulation)
-	{
-		stimulation = stim2
-	}
-
-	  if ((_sec <= total_duration) && (routine_stopped == 0))
+		if (_sec % sec_interval == 0)
 		{
-			if (_sec % sec_interval == 0)
-	 	  {
-				useVolume = (total_duration-_sec) / total_duration;
-				// ZMax_SetSpeechVolume(Math.floor(useVolume*100));
-				// ZMax_SetSpeechRate(-2);
-				phrase = phrases[phrasen];
-				// ZMax_SpeakAsync(phrase); 
-			 	phrasen = phrasen + 1;
-			 	if (phrasen > phrases.length - 1)
-			 	{
-					phrasen = 0;
-				}
-				stimulation();
-	  	}
+			var useVolume = (total_duration-_sec) / total_duration;
+			ZMax_SetSpeechVolume(Math.floor(useVolume*100));
+			ZMax_SetSpeechRate(-2);
+			var phrase = phrases1[phrasen];
+			ZMax_SpeakAsync(phrase); 
+			phrasen = phrasen + 1;
+			if (phrasen > phrases1.length - 1)
+			{
+				phrasen = 0;
+			}
+			DoStimulation1();
 		}
-	_sec = _sec+1;
+	}
+	_sec = _sec+1; 
 }
 
 var mp3Path = "C:\mp3\remmp3.mp3"; ////path to mp3 file on your computer
 var mp3Volume = 0.5;                     ////sets volume [0 to 1]
 
-function playMp3(selectedStimulation)
+function playMp3(stimulation)
 {
 	ZMax_StopSound()
 	ZMax_PlaySound(mp3Path, 0)
 	ZMax_SetSoundVolume(mp3Volume)
 	if (stimulation)
 	{
-		selectedStimulation()
+		stimulation()
 	}
 }
 
-function playPhrases(selectedStimulation,selcetedPhrases)
+var phrasesSeconds = 0
+
+function playPhrases(stimulation,phrases)
 {
-	stimulation= selectedStimulation
-	phrases= selcetedPhrases
-	_sec= 0
-	phrasen = 0
+	// (phrases3 || phrases4 || phrases5)
+	if (phrases = phrases3)
+  {
+	total_duration = 30
+  }
+	if(!phrases)
+	{
+		phrases = phrases1
+	}
+	var phrasesInterval = setInterval(function()
+	{
+	  if ((phrasesSeconds <= total_duration) && (routine_stopped == 0))
+		{
+			if (phrasesSeconds % sec_interval == 0)
+	 	  {
+				useVolume = (total_duration-phrasesSeconds) / total_duration;
+				ZMax_SetSpeechVolume(Math.floor(useVolume*100));
+				// ZMax_SetSpeechRate(-2);
+				phrase = phrases[phrasen];
+				ZMax_SpeakAsync(phrase); 
+			 	phrasen = phrasen + 1;
+			 	if (phrasen > phrases.length - 1)
+			 	{
+					phrasen = 0;
+				}
+				if(stimulation)
+				{
+				  stimulation();
+				}
+	  	}
+			phrasesSeconds++
+		}
+		else
+		{
+			clearInterval(phrasesInterval)
+			phrasesSeconds = 0
+		}
+	}, 1000)
 }
+	
+
 
 // ***********************************************************
 // NewEpochReceived
@@ -215,15 +239,13 @@ var fiveMinutes= 60000 * 5; //milliseconds in 5 minutes
 var halfHour = 60000 * 30; //milliseconds in 30 minutes
 var oneHour = 60000 * 60; //milliseconds in 60 minutes
 
-// NewEpochReceived(true)
-
 function NewEpochReceived(isREM)
 {    
 	if (isREM)
 	{
 		remsArray.push(new Date().getTime());
 		var totalRems = remsArray.length;
-		var timeSinceLastRem = !remsArray[0] ? remsArray[totalRems - 1] - remsArray[totalRems - 2] : 0		
+		var timeSinceLastRem = remsArray[totalRems - 1] - remsArray[totalRems - 2]	
 		if (totalRems == 1)
 		{
 			// DoStimulation1()
